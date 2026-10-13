@@ -23,7 +23,22 @@ When a cleaning finding *raises* a project-level question, it's listed under **H
 | 4 | **Concise** | Lead with the answer. One idea per paragraph. No step-by-step narration of the queries. |
 | 5 | **Clear logic, accurate evidence, real insight** | Every number traces to a query in `sql/` and a file in `results/`. Claims follow from the numbers. It goes beyond restating results to explain *why* (for example, ruling out alternative explanations). |
 
-## 3. Structure of a cleaning `findings.md`
+## 3. How the standard is enforced
+
+| Layer | Covers | How |
+|---|---|---|
+| **Automated** | English only; required sections; links resolve; every file in `sql/` and `results/` is linked (traceability); status icons have a legend; every ⚠️ / ❌ row has a treatment | [`scripts/check_findings.py`](../scripts/check_findings.py), run by a git pre-commit hook. A commit that fails is blocked. One-time setup after cloning: `git config core.hooksPath .githooks` |
+| **Review** | Criteria 1–5 in section 2 that need judgment | Before committing, the author scores every finding against criteria 1–5 using the template below. Any finding that misses a criterion is rewritten, moved to the hand-off list, or cut |
+
+**Review template** (completed before each commit, not stored in the findings file):
+
+| Finding | 1 Business | 2 Scope | 3 Stakeholder | 4 Concise | 5 Evidence & insight | Action |
+|---|---|---|---|---|---|---|
+| e.g. 2a Unknown channel | ✅ breaks rule B2 | ✅ data-source issue | ✅ names an owner action | ✅ | ✅ 3 tests rule out alternatives; numbers in `03_…csv` | Keep |
+
+**Plain-language test:** every table must be readable on its own. If a reader can't tell from the row alone what was tested, what was found, and what happens next, rewrite the row.
+
+## 4. Structure of a cleaning `findings.md`
 
 1. **Summary**: one row per core question, each with a direct answer
 2. **Business model fit**: does the data follow the business's rules?

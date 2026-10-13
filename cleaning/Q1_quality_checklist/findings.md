@@ -11,7 +11,7 @@
 | Question | Answer |
 |---|---|
 | **Does the data follow the business model?** | **Yes**, with two small exceptions (1 deal, 1.7% of orders). |
-| **Is critical data missing?** | **Yes.** Acquisition channel is missing for 14.5% of leads because of a tracking gap concentrated on one landing page. And 55% of signed sellers never appear in the order data. |
+| **Is critical data missing?** | **Two gaps.** Acquisition channel is missing for 14.5% of leads because of a tracking gap concentrated on one landing page. And 55% of signed sellers never appear in the order data. All other funnel fields are complete. |
 | **Do the tables join correctly?** | **Yes.** No orphans, no duplicate keys or rows, and row counts match the source exactly. |
 
 ---
@@ -56,11 +56,11 @@ The data can't tell apart two explanations: (1) about half of signed sellers nev
 - **Action for the data owner:** confirm whether the order data is complete for these sellers.
 - **Treatment here:** none. The records are valid. How to interpret them is handed off to P1 (see below).
 
-### 2c. Seller-profile fields are rarely filled in (lower priority)
+### 2c. Every field the funnel depends on is complete
 
-Four fields in `closed_deals` are ~92% empty: `has_company`, `has_gtin`, `average_stock`, `declared_product_catalog_size`. `declared_monthly_revenue` has no NULLs, but 94.7% of its values are `0`, which in practice means "not filled in." These look like optional fields on the sales intake form.
+Lead ID, first-contact date, sign date, seller ID, order ID, purchase timestamp, and price have **zero** missing values. Outside 2a and 2b, no gap prevents tracing a lead through to revenue.
 
-The fields that define the funnel are complete: lead ID, first-contact date, sign date, seller ID, order ID, purchase timestamp, and price all have zero missing values.
+What *is* incomplete is optional seller-profile data from the sales intake form. `has_company`, `has_gtin`, `average_stock`, and `declared_product_catalog_size` are ~92% empty. `declared_monthly_revenue` is 94.7% `0`, a placeholder for "not filled in." Whether any project needs these fields is a scoping question (see hand-off).
 
 ## 3. Integrity
 
@@ -76,18 +76,20 @@ The fields that define the funnel are complete: lead ID, first-contact date, sig
 
 ## Check-by-check results (standard v1)
 
-| Check | Result | Key number |
-|---|---|---|
-| rows_completion | ✅ Pass | all 5 tables match |
-| data_type | ✅ Pass | 0 dates stored as text |
-| distinct_primary_key | ✅ Pass | 0 duplicate keys |
-| null_check | ⚠️ See 2a, 2c | channel 14.5% missing |
-| date_logic | ❌ Minor | 1 deal |
-| value_range | ✅ Pass | 0 non-positive prices |
-| category_values | ❌ Minor | 1,655 stuck orders |
-| duplicate_rows | ✅ Pass | 0 |
-| referential_integrity | ✅ Pass | 0 orphans |
-| observation_window | ⚠️ See 2b | 45% match rate; 667 sellers signed ≥ 90 days before cutoff (threshold 100) |
+✅ meets the standard · ⚠️ no pass/fail threshold was set in advance, so the result needs interpretation · ❌ breaks the standard
+
+| Check | What it tests | Result | What we found | Treatment |
+|---|---|---|---|---|
+| rows_completion | Did every table load completely? | ✅ | All 5 tables match the published row counts | — |
+| data_type | Are dates, amounts, and IDs stored as the right types? | ✅ | All correct as loaded | — |
+| distinct_primary_key | Is there one row per lead, deal, seller, order, and order item? | ✅ | No duplicate keys | — |
+| null_check | Are fields filled in? | ⚠️ | 14.5% of leads have no acquisition channel (2a); 4 seller-profile fields are ~92% empty (2c) | Keep leads with no channel as `unknown`; flag the seller-profile fields |
+| date_logic | Do events happen in a possible order? | ❌ | 1 deal is marked won 2 days before the lead's first contact | Exclude the deal in Transform |
+| value_range | Are prices and freight plausible? | ✅ | No zero or negative values; extremes are explainable | — |
+| category_values | Are order statuses valid and current? | ❌ | 1,655 orders (1.7%) have been stuck in an in-progress status for 30+ days | Don't count them as completed sales |
+| duplicate_rows | Are any rows copied twice? | ✅ | None | — |
+| referential_integrity | Does every item, deal, and seller link to its parent record? | ✅ | No orphan records | — |
+| observation_window | Can signed sellers be found in the order data, with enough time to observe them? | ⚠️ | Only 45% of signed sellers appear in the order data (2b). 667 signed early enough to observe for 90 days, well above the 100 needed | No change; interpretation handed off to P1 |
 
 ## Hand-off to P1 scoping
 

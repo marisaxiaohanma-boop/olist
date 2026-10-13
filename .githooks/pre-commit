@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Block commits whose staged findings.md files fail the mechanical checks in docs/findings_standard.md.
+files=$(git diff --cached --name-only --diff-filter=ACM | grep 'findings\.md$')
+[ -z "$files" ] && exit 0
+python3 scripts/check_findings.py $files || {
+  echo "Commit blocked: fix the findings issues above (see docs/findings_standard.md)."
+  exit 1
+}

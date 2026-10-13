@@ -12,3 +12,6 @@ data/
 .DS_Store
 .vscode/
 .idea/
+
+# Local assistant instructions
+CLAUDE.md

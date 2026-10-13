@@ -1,6 +1,6 @@
-# S3 Setup：建 GitHub 仓库
+# S3 · Set up this repository
 
-- **目的**：给 SQL、检查结果和清洗记录一个固定的存放位置，让作品集可以复现。
-- **结构**：清洗的每一步一个文件夹，每个文件夹里放 `sql/`、`results/`、`findings.md`。结构说明见根目录 README。
-- **规则**：Q1 开始之前完成；之后每写一个 SQL 文件就提交一次。
-- **状态**：已完成（2026-10-13）。
+- **Purpose:** give every query, result, and decision a permanent, traceable home.
+- **Structure:** one folder per step, each with `sql/`, `results/`, and `findings.md`. See the root [README](../../README.md).
+- **Rule:** done before Q1; every new SQL file is committed as it's written.
+- **Status:** ✅ Done (2026-10-13).

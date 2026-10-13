@@ -1,6 +1,6 @@
-# T1 类型转换
+# T1 · Type conversion
 
-- **目的**：让日期能算天数差、金额能求和。
-- **实现**：对 Q1 `data_type` 检查记下的列，在生成 clean 表时用 SAFE_CAST 转成 DATE / TIMESTAMP / FLOAT64。转换前先统计每一列转换失败的行数，用 ASSERT 写死：有失败就直接报错。DATE 和 TIMESTAMP 比较前先统一转成 DATE。
-- **判断规则**：转换失败的行数应全部为 0。不为 0 时先看原始值，找出格式问题。
-- **状态**：阶段 1 未开始。
+- **Purpose:** make dates usable for day differences and amounts usable for sums.
+- **Method:** columns flagged by `data_type` are cast with `SAFE_CAST`, and the number of failed casts is enforced to be 0 with `ASSERT`. TIMESTAMP and DATE values are normalized to DATE before comparison.
+- **Stage 1 note:** Q1 found no date columns stored as text, so only DATE normalization is needed.
+- **Status:** Not started.

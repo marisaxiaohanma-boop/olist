@@ -1,6 +1,6 @@
-# T3 标准化
+# T3 · Standardize categorical values
 
-- **目的**：让分类字段可读、一致。
-- **实现**：渠道（mql_leads.origin）去空格、转小写，空值填 unknown。品类：products 关联翻译表换成英文，翻译不到的保留原名，空值填 unknown。把列名里拼错的 `*_lenght` 改成 `*_length`。
-- **判断规则**：unknown 占比高时，在分渠道、分品类的分析里单独列出来，不删除。
-- **状态**：阶段 1（origin）未开始。
+- **Purpose:** make categorical fields consistent, so one category isn't split into several.
+- **Method:** trim and lowercase categorical values. `mql_leads.origin`: map NULL and the literal `unknown` to a single `unknown` value. Stage 2: translate product categories to English and fix misspelled `*_lenght` columns.
+- **Rule:** `unknown` is reported as its own group, never dropped.
+- **Status:** Not started.

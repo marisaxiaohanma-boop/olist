@@ -1,14 +1,14 @@
-# 原始数据不上传
+# Raw data is not committed
 Olist-rawdata/
 data/
 *.zip
 
-# CSV 默认不上传；但每一步 results/ 里的查询结果要留档
+# CSVs are ignored by default, except query results kept for traceability
 *.csv
 !cleaning/**/results/*.csv
 !p*/**/results/*.csv
 
-# 系统 / 编辑器
+# OS / editor
 .DS_Store
 .vscode/
 .idea/

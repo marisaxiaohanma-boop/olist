@@ -1,38 +1,57 @@
 # Olist Growth Analytics
 
-我用 Olist 巴西电商公开数据做了一套增长诊断：获客（P1）、客户价值与留存（P2）、网站转化（P3，GA4 样例数据）。
+A growth diagnosis of a Brazilian e-commerce marketplace (Olist), built on public data in BigQuery. Each project answers one part of the growth equation:
 
-- 数据仓库：BigQuery 项目 `olist001`。数据集分三个：`raw`（原始表，永远不改）、`clean`（清洗后的表）、`analysis`（分析结果），全部在 US。
-- 完整计划写在 Google Sheet「Growth Analytics Portfolio Plan」里。
+| Project | Growth lever | Core question |
+|---|---|---|
+| **P1 · Lead Quality vs. Lead Volume** | Acquisition | For each acquisition channel, how much GMV does one marketing-qualified lead (MQL) bring in on average? |
+| **P2 · Repeat Purchase & Customer Value** | Retention | Is low repeat purchase worth investing in, and if so, in whom and how? |
+| **P3 · Website Conversion Funnel** | Conversion | Where do visitors drop off, and which fix is worth the most revenue? (GA4 sample data) |
 
-## 目录结构
+## Data pipeline
+
+- **Warehouse:** BigQuery project `olist001`, US region
+- **Layers:** `raw` (source tables, never modified) → `clean` (validated and transformed) → `analysis` (project outputs)
+- **Sources:** [Olist Marketing Funnel](https://www.kaggle.com/olistbr/marketing-funnel-olist) and [Brazilian E-Commerce Public Dataset](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce) (Kaggle)
+
+Data is cleaned in four phases before any analysis: **Setup → Quality Checklist → Transform → Reconciliation**. The Quality Checklist only inspects the data; Transform is the only phase that writes clean tables.
+
+## Repository layout
 
 ```
-cleaning/                  数据清洗，每一步一个文件夹
-  S1_setup_load/           导入原始数据
-  S2_env_check/            确认 BigQuery 环境
-  S3_repo_setup/           建仓库（本仓库）
-  Q1_quality_checklist/    清洗前质量检查（只检查，不改数据）
-  T1_type_cast/            类型转换
-  T2_grain/                处理粒度（一对多汇总）
-  T3_standardize/          标准化
-  T4_build_clean/          生成 clean 表
-  R1_reconciliation/       清洗前后对账
-p1_lead_quality/           P1 Lead Quality vs Lead Volume
-p2_repeat_purchase/        P2 Repeat Purchase & Customer Value
-p3_ga4_funnel/             P3 Website Conversion Funnel
-                           （三个项目文件夹里都有 sql/ 和 results/）
-scripts/                   可重复运行的脚本（例如导入）
-docs/cleaning_log.md       所有清洗决定的总账，和 Sheet 里的 Cleaning Log tab 同步
+cleaning/                  one folder per cleaning step
+  S1_setup_load/           load raw CSVs into BigQuery
+  S2_env_check/            verify billing, region, table expiry
+  S3_repo_setup/           this repository
+  Q1_quality_checklist/    data quality checks (read-only)  ← start here
+  T1_type_cast/            type conversion
+  T2_grain/                aggregate one-to-many tables to order level
+  T3_standardize/          normalize categorical values
+  T4_build_clean/          build clean tables
+  R1_reconciliation/       raw vs. clean reconciliation
+p1_lead_quality/           P1 analysis
+p2_repeat_purchase/        P2 analysis
+p3_ga4_funnel/             P3 analysis
+scripts/                   reproducible load scripts
+docs/cleaning_log.md       every data issue found and how it was handled
 ```
 
-每个步骤文件夹都用同一套结构，方便回头查：
+Each step and project folder follows the same structure, so every number can be traced back to the query that produced it:
 
-| 文件 | 放什么 |
+| File | Contents |
 |---|---|
-| `README.md` | 这一步的目的、实现逻辑和判断规则（来自计划） |
-| `sql/` | 这一步跑过的 SQL，文件名带编号 |
-| `results/` | SQL 跑出来的结果（CSV） |
-| `findings.md` | 看完结果后的判断：Pass / Fail、怎么处理、为什么 |
+| `README.md` | Purpose, method, and decision rules for the step |
+| `sql/` | Queries, numbered in run order |
+| `results/` | Query output (CSV) |
+| `findings.md` | What the results mean and what was decided |
 
-原始 CSV 不放进仓库，用 `scripts/00_setup_and_load.sh` 从 Kaggle 下载后导入 BigQuery。
+Raw CSVs are not committed. `scripts/00_setup_and_load.sh` downloads them from Kaggle and loads them into BigQuery.
+
+## Status
+
+| Step | Status |
+|---|---|
+| S1–S3 Setup | ✅ Done |
+| Q1 Quality Checklist (stage 1) | ✅ Done. See [findings](cleaning/Q1_quality_checklist/findings.md) |
+| T1–T4, R1 (stage 1) | Not started |
+| P1 | Not started |

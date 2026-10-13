@@ -1,91 +1,109 @@
-# Q1 Findings · 阶段 1 · 标准 v1
+# Q1 Data Quality Findings — Stage 1
 
-- 运行日期：2026-10-13
-- SQL：`sql/01_quality_checklist.sql`（标准检查）、`sql/02_followups_stage1.sql`（对需要判断的结果做追查）
-- 结果：`results/quality_check_results_stage1.csv`（122 行）、`results/followups_stage1.csv`
-- 扫描量：约 38 MB，费用可以忽略
+**Scope:** the five raw tables behind the lead-to-revenue funnel: `mql_leads`, `closed_deals`, `sellers`, `orders`, `order_items`
+**Question:** is the raw data a faithful record of how Olist's business works? No data was changed in this step.
+**Run date:** 2026-10-13 · **Standard:** [checklist v1](checklist.md) · **Business rules B1–B7:** defined in the [checklist](checklist.md#start-from-the-business-model)
 
-## 总览
+---
 
-| check_name | 结果 | 一句话 |
-|---|---|---|
-| rows_completion | ✅ Pass | 5 张表的行数和 Kaggle 公开版完全一致 |
-| data_type | ✅ Pass | 日期列已经是 DATE / TIMESTAMP，金额是 FLOAT64，ID 是 STRING；没有以 STRING 存储的日期列 |
-| distinct_primary_key | ✅ Pass | 5 张表的主键都没有重复 |
-| null_check | ⚠️ 需说明 | 核心字段都没有空值；closed_deals 有 5 个字段大面积缺失；发现“伪空值”（见下文） |
-| date_logic | ❌ Fail（量很少） | 1 条成交早于首次接触；送达早于下单 = 0 |
-| value_range | ✅ Pass | 没有 ≤ 0 的价格，也没有负运费；极端值能被业务解释 |
-| category_values | ❌ Fail | 有 1,655 笔订单长期停在中间状态 |
-| duplicate_rows | ✅ Pass | 5 张表都没有整行重复 |
-| referential_integrity | ✅ Pass | 三条关联都是 0 条孤立记录 |
-| observation_window | ⚠️ 需说明 | 有完整窗口的商家数达标（667 家），但匹配率只有 45% |
+## Summary
 
-## 逐项判断
-
-### rows_completion ✅
-mql_leads 8,000、closed_deals 842、orders 99,441、order_items 112,650、sellers 3,095，全部等于预期。导入完整。
-
-### data_type ✅
-- autodetect 已经把所有日期列识别成 DATE / TIMESTAMP，`string_date_columns = 0`。所以 T1 不需要用 SAFE_CAST 转换，只需要在比较前把 TIMESTAMP 统一转成 DATE。
-- `sellers.seller_zip_code_prefix` 是 STRING，正确，能保留开头的 0。
-- `closed_deals.average_stock` 是 STRING，它本来就是分档文本，不是数值。
-
-### distinct_primary_key ✅
-orders.order_id、sellers.seller_id、mql_leads.mql_id、closed_deals.mql_id 的重复数都是 0。order_items 的 (order_id, order_item_id) 也唯一，确认一行 = 一个订单里的一件商品。
-
-### null_check ⚠️
-
-| 表.字段 | 空值数 | 判断 |
-|---|---|---|
-| mql_leads.origin | 60（0.75%） | 按计划填 unknown。**但原始数据里已经有 1,099 条取值就是 `unknown`**，合并后 unknown 共 1,159 条，占 **14.5%**。在 P1 按渠道分析时必须单独列出 |
-| closed_deals.business_segment / lead_type / business_type | 1 / 6 / 10 | 都低于 1.2%，填 unknown 后可以用于 P1 分析 4 |
-| closed_deals.lead_behaviour_profile | 177（21%） | 缺失多，只作为参考，不作为主要拆分维度 |
-| closed_deals.has_company / has_gtin / average_stock / declared_product_catalog_size | 约 92% | 基本没有数据，不进 clean 表 |
-| closed_deals.declared_monthly_revenue | 0 | **伪空值**：没有空值，但有 797 条（94.7%）是 0，实际上等于“没填”。不进 clean 表 |
-| orders.order_id / customer_id | 0 | 通过 |
-| orders.order_approved_at | 160 | 其中 delivered 订单 14 条，量很少，接受（P1 不用这个字段） |
-| orders.order_delivered_customer_date | 2,965 | 其中状态是 delivered 的只有 8 条。按计划：保留在复购计算中，从延迟分析中排除（这是 P2 的处理） |
-
-### date_logic ❌（量很少）
-- 送达早于下单：0。
-- **won_date 早于 first_contact_date：1 条**（mql_id `b91cf881…`，提前 2 天）。按标准“数量很少就排除并记录”，在 T4 生成 clean.closed_deals 时排除。
-- 日期范围：orders 2016-09-04 到 2018-10-17；mql 2017-06-14 到 2018-05-31，都符合预期。
-- **won_date 最晚到 2018-11-14，晚于订单数据截止日。** 有 50 家商家在 2018-08-30 之后才成交，订单数据里不可能有它们的订单。observation_window 会自动排除它们，这里只做记录。
-
-### value_range ✅
-price 没有 ≤ 0 的值；中位数 74.99，P99 是 890，最大值 6,735。freight_value 没有负值，P99 是 84.38，最大值 409.68。极端值只占很小比例，而且是高价商品，业务上说得通，保留。
-
-### category_values ❌
-order_status 只出现 8 个已知取值（delivered 96,478、shipped 1,107、canceled 625、unavailable 609、invoiced 314、processing 301、created 5、approved 2）。下单超过 30 天还停在中间状态的订单有 **1,655 笔**：shipped 1,058、processing 301、invoiced 289、created 5、approved 2。按标准，分析只用 delivered，这些订单排除并记录数量。
-
-### duplicate_rows ✅
-5 张表都没有整行重复。
-
-### referential_integrity ✅
-- order_items → orders：0 条孤立。
-- order_items → sellers：0 条孤立。
-- closed_deals → mql_leads：0 条孤立。842 条成交都能对回线索，P1 的关联路径没有问题。
-
-### observation_window ⚠️
-- 成交商家 842 家，其中 **380 家（45.1%）** 在 order_items 里至少有一笔订单。
-- 按成交月份拆开看：2018-01 到 2018-05 成交的商家，匹配率稳定在 50%–56%；2018-06 以后快速下降（40% → 27% → 6% → 0%），因为这些商家成交太晚，订单数据已经截止。
-- 匹配上的商家里，**没有一家**在成交日期之前就有订单。说明 seller_id 的关联口径是可靠的。
-- 有完整 90 天窗口的商家（won_date ≤ 2018-06-01）：**667 家**，其中有订单的 **346 家**。都远高于 100 家的门槛，不需要把窗口缩短到 60 天或 30 天。
-- 截止日之后的订单：21 笔。
-
-**解读：** 即使是成交早、观察期足够的商家，也只有大约一半出现在订单数据里。原因可能有两个，用现有数据分不开：一是确实有一半商家成交后没开始卖货；二是 Kaggle 的订单数据是抽样（约 10 万笔），部分商家的订单没被抽到。这一点必须写进 P1 的局限性。
-
-## 需要你决定的事
-
-1. **null_check 标准是否升级到 v2？** 现在的 v1 只数 NULL，漏掉了“用 0 或 `unknown` 代替空值”的伪空值（declared_monthly_revenue 94.7% 是 0；origin 有 1,099 条 `unknown`）。建议在 v2 里加一项 `placeholder_values`：检查数值字段等于 0 的比例、分类字段等于 unknown / other 的比例。按计划的规则，升级要在 Cleaning Log 写明原因。
-2. **P1 的订单状态口径。** checklist 写的是“分析只用 delivered”，但 P1 tab 的分析 2 写的是“状态不是 canceled / unavailable”（会把长期停在 shipped 的订单也算进去）。建议统一成**只用 delivered**：和 checklist 一致，也能避开这 1,655 笔可疑订单。
-3. **匹配率 45% 怎么处理。** checklist 写的是“匹配率低时，激活率改用‘是否有任何订单’”。我的建议是**保留 90 天口径**：完整窗口的商家有 667 家，样本足够；对不上订单的商家计为“未激活”（P1 分析 2 本来就是这么写的：没有订单的商家记为 0）。同时在局限性里写明“可能有一部分是抽样导致的”。
-
-## 进入 Transform 的处理清单（已经确定的部分）
-
-| 步骤 | 处理 |
+| Question | Answer |
 |---|---|
-| T1 | 不需要 SAFE_CAST；比较日期前统一用 DATE() 转换 |
-| T3 | origin：NULL 和 `unknown` 合并为 unknown（共 1,159 条，14.5%），其他取值去空格、转小写 |
-| T4 clean.closed_deals | 排除 won_date 早于 first_contact_date 的 1 条；不保留 has_company、has_gtin、average_stock、declared_product_catalog_size、declared_monthly_revenue |
-| T4 clean.seller_orders | 订单状态口径取决于决定 2 |
+| **Does the data follow the business model?** | **Yes**, with two small exceptions (1 deal, 1.7% of orders). |
+| **Is critical data missing?** | **Yes.** Acquisition channel is missing for 14.5% of leads because of a tracking gap concentrated on one landing page. And 55% of signed sellers never appear in the order data. |
+| **Do the tables join correctly?** | **Yes.** No orphans, no duplicate keys or rows, and row counts match the source exactly. |
+
+---
+
+## 1. Business model fit
+
+| Rule | Result | Evidence |
+|---|---|---|
+| B1 · Every seller started as a lead | ✅ | All 842 deals map to a lead; 1 deal closes 2 days before first contact |
+| B3 · Sellers sell only after signing | ✅ | 0 of 380 matched sellers have an order before their sign date |
+| B4 · Each item belongs to one order and one seller | ✅ | 0 orphan items; (order, item) is unique |
+| B5 · Orders follow a fixed lifecycle | ✅ | 0 orders delivered before purchase; only the 8 known statuses; 97% `delivered` |
+| B6 · GMV is positive item prices | ✅ | 0 non-positive prices; max R$6,735 vs. 99th percentile R$890 |
+
+**Exceptions, both handled in Transform:**
+- **1 deal won before first contact.** Likely a data-entry error. It will be excluded.
+- **1,655 orders (1.7%) stuck in progress** (`shipped`, `processing`, `invoiced`…) for 30+ days before the data cutoff. Their outcome is unknown, so they won't be counted as completed sales.
+
+## 2. Critical missing data
+
+### 2a. Acquisition channel isn't tracked for one major entry point (rule B2)
+
+1,159 of 8,000 leads (14.5%) have no channel: 60 are `NULL` and 1,099 are tagged `unknown`. Three tests show this is a systematic tracking gap, not random noise:
+
+| Test | Result | Rules out |
+|---|---|---|
+| Share by month | Steady at 13–18% every month | A one-time outage |
+| Share by landing page | 57% of unknowns (657) come from one page, `b76ef374…`; 72% of that page's leads are untagged | Gaps spread randomly |
+| Close rate | Unknown leads close at 16.7% vs. 9.5% for tagged leads | Untagged leads being low-quality noise |
+
+That same page is one of Olist's two largest sources of closed deals: 171 of 842 (20%), with an 18.8% close rate vs. 10.5% overall. **One of the best-performing entry points is the one whose channel isn't recorded.**
+
+- **Action for the data owner:** audit source / UTM tagging on page `b76ef374…`, which accounts for over half the gap. Then make `origin` required at lead capture, with no default to `unknown`.
+- **Treatment here:** merge `NULL` and `unknown` into one `unknown` value in T3. Keep these leads; don't drop them.
+
+### 2b. 55% of signed sellers never appear in the order data (rule B3)
+
+Only 380 of 842 signed sellers (45%) have any order. Late sign-ups explain part of this: 50 sellers signed after the order data ends. But sellers signed Jan–May 2018, with 3+ months to sell, still match at only 50–56%.
+
+The data can't tell apart two explanations: (1) about half of signed sellers never start selling, or (2) the public order dataset doesn't cover every order.
+
+- **Action for the data owner:** confirm whether the order data is complete for these sellers.
+- **Treatment here:** none. The records are valid. How to interpret them is handed off to P1 (see below).
+
+### 2c. Seller-profile fields are rarely filled in (lower priority)
+
+Four fields in `closed_deals` are ~92% empty: `has_company`, `has_gtin`, `average_stock`, `declared_product_catalog_size`. `declared_monthly_revenue` has no NULLs, but 94.7% of its values are `0`, which in practice means "not filled in." These look like optional fields on the sales intake form.
+
+The fields that define the funnel are complete: lead ID, first-contact date, sign date, seller ID, order ID, purchase timestamp, and price all have zero missing values.
+
+## 3. Integrity
+
+| Check | Result |
+|---|---|
+| Row counts vs. published dataset | Exact match: 8,000 / 842 / 3,095 / 99,441 / 112,650 |
+| Unique primary keys | All 5 tables |
+| Fully duplicated rows | 0 |
+| Orphans: `order_items` → `orders` / `sellers`; `closed_deals` → `mql_leads` | 0 / 0 / 0 |
+| Column types | Correct as loaded; no type conversion needed |
+
+---
+
+## Check-by-check results (standard v1)
+
+| Check | Result | Key number |
+|---|---|---|
+| rows_completion | ✅ Pass | all 5 tables match |
+| data_type | ✅ Pass | 0 dates stored as text |
+| distinct_primary_key | ✅ Pass | 0 duplicate keys |
+| null_check | ⚠️ See 2a, 2c | channel 14.5% missing |
+| date_logic | ❌ Minor | 1 deal |
+| value_range | ✅ Pass | 0 non-positive prices |
+| category_values | ❌ Minor | 1,655 stuck orders |
+| duplicate_rows | ✅ Pass | 0 |
+| referential_integrity | ✅ Pass | 0 orphans |
+| observation_window | ⚠️ See 2b | 45% match rate; 667 sellers signed ≥ 90 days before cutoff (threshold 100) |
+
+## Hand-off to P1 scoping
+
+This step raises the questions below but doesn't decide them. They're decided in P1, against P1's business question.
+
+1. **Unknown channel:** how to present a channel ranking when 14.5% of leads, including much of a top-converting landing page, have no channel.
+2. **Unmatched sellers:** whether a signed seller with no orders counts as "not activated," and how to state the coverage uncertainty from 2b.
+3. **Order status:** which order statuses count toward GMV.
+4. **Fields:** which `closed_deals` fields are in scope, given 2c.
+
+## Files
+
+| Query | Output |
+|---|---|
+| [`sql/01_quality_checklist.sql`](sql/01_quality_checklist.sql): every checklist check | [`results/quality_check_results_stage1.csv`](results/quality_check_results_stage1.csv) |
+| [`sql/02_followups_stage1.sql`](sql/02_followups_stage1.sql): drill-downs on flagged results | [`results/followups_stage1.csv`](results/followups_stage1.csv) |
+| [`sql/03_unknown_origin_diagnosis.sql`](sql/03_unknown_origin_diagnosis.sql): is unknown channel random or systematic? | [`results/unknown_origin_diagnosis.csv`](results/unknown_origin_diagnosis.csv) |
+
+All issues and treatments are logged in [`docs/cleaning_log.md`](../../docs/cleaning_log.md). Written to the [findings standard](../../docs/findings_standard.md).

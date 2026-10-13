@@ -1,7 +1,8 @@
-# T2 处理粒度（一对多）
+# T2 · Fix one-to-many grain
 
-- **目的**：避免 JOIN 之后金额被重复计算。
-- **实现**：一对多的表先汇总到订单级，再和其他表 JOIN。阶段 1：order_items 按 order_id 汇总，得到商品件数、GMV、运费（结果叫 order_items_agg）。阶段 2：order_payments 按 order_id 汇总；order_reviews 每单只取最新一条。
-- **GMV 口径**：GMV = price 合计，不含运费。payment_value 含运费和分期利息，只用来对账。
-- **判断规则**：汇总表的行数 = 不重复的 order_id 数。
-- **状态**：阶段 1 未开始。
+- **Purpose:** prevent amounts from being double-counted after joins.
+- **Method:** aggregate one-to-many tables to order level *before* joining. Stage 1: `order_items` → item count, GMV, and freight per order. Stage 2: `order_payments` summed per order; `order_reviews` keeps the latest review per order.
+- **Why:** joining orders, items, and payments directly multiplies rows. An order with 3 items and 2 payments would be counted 6 times.
+- **GMV definition:** sum of `price`, excluding freight. `payment_value` includes freight and installment interest and is used for reconciliation only.
+- **Rule:** row count of each aggregate = distinct `order_id` count.
+- **Status:** Not started.

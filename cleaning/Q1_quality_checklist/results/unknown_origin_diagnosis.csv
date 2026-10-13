@@ -1,0 +1,19 @@
+check_name,table_name,metric,value,note
+unknown_origin,mql_leads,pages_100pct_unknown,102,113 leads on these pages
+unknown_origin,mql_leads,pages_total,495,distinct landing_page_id
+unknown_origin,mql_leads,pct_unknown_2017-06,50.0,2 of 4 leads
+unknown_origin,mql_leads,pct_unknown_2017-07,16.7,40 of 239 leads
+unknown_origin,mql_leads,pct_unknown_2017-08,18.4,71 of 386 leads
+unknown_origin,mql_leads,pct_unknown_2017-09,12.5,39 of 312 leads
+unknown_origin,mql_leads,pct_unknown_2017-10,13.0,54 of 416 leads
+unknown_origin,mql_leads,pct_unknown_2017-11,14.4,64 of 445 leads
+unknown_origin,mql_leads,pct_unknown_2017-12,14.0,28 of 200 leads
+unknown_origin,mql_leads,pct_unknown_2018-01,13.7,156 of 1141 leads
+unknown_origin,mql_leads,pct_unknown_2018-02,15.9,163 of 1028 leads
+unknown_origin,mql_leads,pct_unknown_2018-03,16.6,195 of 1174 leads
+unknown_origin,mql_leads,pct_unknown_2018-04,13.2,179 of 1352 leads
+unknown_origin,mql_leads,pct_unknown_2018-05,12.9,168 of 1303 leads
+unknown_origin,mql_leads,total_unknown,1159,
+unknown_origin,mql_leads,unknown_on_top_unknown_page,657,"page b76ef37428e6799c421989521c0e5077: 912 leads, 657 unknown, 171 won"
+unknown_origin,mql_leads,won_rate_known,9.5,649 won of 6841 leads
+unknown_origin,mql_leads,won_rate_unknown,16.7,193 won of 1159 leads

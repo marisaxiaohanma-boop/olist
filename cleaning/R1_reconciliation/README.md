@@ -1,6 +1,6 @@
-# R1 清洗前后对账
+# R1 · Reconcile raw vs. clean
 
-- **目的**：确认清洗过程中没有误删、也没有重复。
-- **实现**：用 ASSERT 比较 raw 和 clean 的订单数、商家数、GMV 合计。差额应该正好等于被过滤掉的记录，而且每一项差额都要能对应到 Cleaning Log 里的一条处理记录。
-- **判断规则**：每个差额都必须能完全解释。解释不了，就回到对应步骤查原因。
-- **状态**：阶段 1 未开始。
+- **Purpose:** prove that cleaning didn't silently drop or duplicate data.
+- **Method:** `ASSERT` that order counts, seller counts, and total GMV in `clean` match `raw` minus the records excluded on purpose. Every difference must map to an entry in [`docs/cleaning_log.md`](../../docs/cleaning_log.md).
+- **Rule:** any difference that can't be explained stops the pipeline.
+- **Status:** Not started.

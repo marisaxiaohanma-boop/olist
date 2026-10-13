@@ -1,17 +1,17 @@
--- Q1 Quality Checklist · 阶段 1 · 标准 v1
--- 范围：mql_leads、closed_deals、orders、order_items、sellers（olist001.raw）
--- 只检查，不改数据。每段输出统一 5 列：check_name, table_name, metric, value, note
--- 通过标准见 cleaning/Q1_quality_checklist/checklist.md
--- 运行：bq query --project_id=olist001 --use_legacy_sql=false --format=csv --max_rows=10000 < 本文件
+-- Q1 Quality Checklist · Stage 1 · Standard v1
+-- Scope: mql_leads, closed_deals, orders, order_items, sellers (olist001.raw)
+-- Read-only. Every block outputs the same 5 columns: check_name, table_name, metric, value, note
+-- Pass criteria: cleaning/Q1_quality_checklist/checklist.md
+-- Run: bq query --project_id=olist001 --use_legacy_sql=false --format=csv --max_rows=10000 < this_file.sql
 
 WITH params AS (
-  SELECT DATE '2018-08-30' AS order_cutoff  -- 订单数据截止日（处理假设，见 docs/cleaning_log.md）
+  SELECT DATE '2018-08-30' AS order_cutoff  -- order-data cutoff (processing assumption; see docs/cleaning_log.md)
 ),
 
 results AS (
 
 -- ============================================================
--- rows_completion：每张表行数，与 Kaggle 公开版已知行数对比
+-- rows_completion: row count per table vs. published Kaggle counts
 -- ============================================================
 SELECT 'rows_completion' AS check_name, 'mql_leads' AS table_name, 'row_count' AS metric,
        CAST(COUNT(*) AS STRING) AS value, 'expected 8000' AS note FROM `olist001.raw.mql_leads`
@@ -21,14 +21,14 @@ UNION ALL SELECT 'rows_completion', 'order_items', 'row_count', CAST(COUNT(*) AS
 UNION ALL SELECT 'rows_completion', 'sellers', 'row_count', CAST(COUNT(*) AS STRING), 'expected 3095' FROM `olist001.raw.sellers`
 
 -- ============================================================
--- data_type：每列的实际类型（导入时 autodetect 的结果）
+-- data_type: actual type of every column (as autodetected at load)
 -- ============================================================
 UNION ALL
 SELECT 'data_type', table_name, column_name, data_type, ''
 FROM `olist001.raw.INFORMATION_SCHEMA.COLUMNS`
 WHERE table_name IN ('mql_leads', 'closed_deals', 'orders', 'order_items', 'sellers')
 
--- 日期列中仍是 STRING 的列数（是的话需要在 T1 统计转换失败数）
+-- Date-like columns still stored as STRING (these would need cast-failure counts in T1)
 UNION ALL
 SELECT 'data_type', 'all_stage1', 'string_date_columns', CAST(COUNT(*) AS STRING),
        'date-like columns stored as STRING'
@@ -38,7 +38,7 @@ WHERE table_name IN ('mql_leads', 'closed_deals', 'orders', 'order_items', 'sell
   AND data_type = 'STRING'
 
 -- ============================================================
--- distinct_primary_key：重复的主键数 = 行数 − 去重数
+-- distinct_primary_key: duplicate keys = row count - distinct key count
 -- ============================================================
 UNION ALL SELECT 'distinct_primary_key', 'orders', 'dup_order_id', CAST(COUNT(*) - COUNT(DISTINCT order_id) AS STRING), '' FROM `olist001.raw.orders`
 UNION ALL SELECT 'distinct_primary_key', 'sellers', 'dup_seller_id', CAST(COUNT(*) - COUNT(DISTINCT seller_id) AS STRING), '' FROM `olist001.raw.sellers`
@@ -49,7 +49,7 @@ UNION ALL SELECT 'distinct_primary_key', 'order_items', 'dup_order_item_key',
        'key = order_id + order_item_id' FROM `olist001.raw.order_items`
 
 -- ============================================================
--- null_check：每张表每一列的空值数（自动展开所有列，不用逐列手写）
+-- null_check: NULL count for every column of every table (columns expanded automatically via JSON)
 -- ============================================================
 UNION ALL
 SELECT 'null_check', tbl, CONCAT('null_', col), CAST(COUNTIF(is_null) AS STRING),
@@ -73,7 +73,7 @@ FROM (
 GROUP BY tbl, col
 
 -- ============================================================
--- date_logic：时间先后关系 + 日期范围
+-- date_logic: event order + date ranges
 -- ============================================================
 UNION ALL
 SELECT 'date_logic', 'orders', 'delivered_before_purchase',
@@ -92,7 +92,7 @@ UNION ALL SELECT 'date_logic', 'closed_deals', 'min_won_date', CAST(MIN(won_date
 UNION ALL SELECT 'date_logic', 'closed_deals', 'max_won_date', CAST(MAX(won_date) AS STRING), '' FROM `olist001.raw.closed_deals`
 
 -- ============================================================
--- value_range：金额是否合理
+-- value_range: are amounts plausible?
 -- ============================================================
 UNION ALL SELECT 'value_range', 'order_items', 'price_le_0', CAST(COUNTIF(price <= 0) AS STRING), '' FROM `olist001.raw.order_items`
 UNION ALL SELECT 'value_range', 'order_items', 'freight_lt_0', CAST(COUNTIF(freight_value < 0) AS STRING), '' FROM `olist001.raw.order_items`
@@ -103,7 +103,7 @@ UNION ALL SELECT 'value_range', 'order_items', 'freight_p99', CAST(APPROX_QUANTI
 UNION ALL SELECT 'value_range', 'order_items', 'freight_max', CAST(MAX(freight_value) AS STRING), '' FROM `olist001.raw.order_items`
 
 -- ============================================================
--- category_values：order_status 取值分布；中间状态订单的最早下单时间
+-- category_values: order_status distribution; earliest purchase date of in-progress orders
 -- ============================================================
 UNION ALL
 SELECT 'category_values', 'orders', CONCAT('status_', IFNULL(order_status, 'NULL')), CAST(COUNT(*) AS STRING),
@@ -118,7 +118,7 @@ FROM `olist001.raw.orders`
 WHERE order_status IN ('shipped', 'processing', 'approved', 'invoiced', 'created')
 
 -- ============================================================
--- duplicate_rows：整行重复
+-- duplicate_rows: fully duplicated rows
 -- ============================================================
 UNION ALL SELECT 'duplicate_rows', 'mql_leads', 'full_row_dups', CAST(COUNT(*) - COUNT(DISTINCT TO_JSON_STRING(t)) AS STRING), '' FROM `olist001.raw.mql_leads` t
 UNION ALL SELECT 'duplicate_rows', 'closed_deals', 'full_row_dups', CAST(COUNT(*) - COUNT(DISTINCT TO_JSON_STRING(t)) AS STRING), '' FROM `olist001.raw.closed_deals` t
@@ -127,7 +127,7 @@ UNION ALL SELECT 'duplicate_rows', 'order_items', 'full_row_dups', CAST(COUNT(*)
 UNION ALL SELECT 'duplicate_rows', 'sellers', 'full_row_dups', CAST(COUNT(*) - COUNT(DISTINCT TO_JSON_STRING(t)) AS STRING), '' FROM `olist001.raw.sellers` t
 
 -- ============================================================
--- referential_integrity：表和表能否对上
+-- referential_integrity: do the tables join without orphans?
 -- ============================================================
 UNION ALL
 SELECT 'referential_integrity', 'order_items', 'orphan_order_items', CAST(COUNTIF(o.order_id IS NULL) AS STRING),
@@ -143,7 +143,7 @@ SELECT 'referential_integrity', 'closed_deals', 'orphan_closed_deals', CAST(COUN
 FROM `olist001.raw.closed_deals` c LEFT JOIN `olist001.raw.mql_leads` m USING (mql_id)
 
 -- ============================================================
--- observation_window（P1）：成交商家能否对上订单；完整 90 天窗口的商家数
+-- observation_window: can signed sellers be linked to orders; how many have a full 90-day window
 -- ============================================================
 UNION ALL
 SELECT 'observation_window', 'closed_deals', 'won_sellers', CAST(COUNT(DISTINCT seller_id) AS STRING), 'distinct seller_id in closed_deals'

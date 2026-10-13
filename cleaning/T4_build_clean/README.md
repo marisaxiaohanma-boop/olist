@@ -1,7 +1,6 @@
-# T4 生成 clean 表
+# T4 · Build clean tables
 
-- **目的**：把 T1 到 T3 的处理固定下来，之后的分析只读 clean 表。
-- **阶段 1**：`clean.mql_leads`、`clean.closed_deals`、`clean.seller_orders`（一行 = 一个商家的一笔订单）。
-- **阶段 2**：`clean.orders`（订单级）。
-- **判断规则**：对每张 clean 表重跑 rows_completion 和 distinct_primary_key，确认粒度正确。
-- **状态**：阶段 1 未开始。
+- **Purpose:** lock in T1–T3 so all analysis reads only from `clean`.
+- **Method:** one SQL file per clean table in `sql/`. Which tables and columns to build is decided in each project's scoping step.
+- **Rule:** re-run `rows_completion` and `distinct_primary_key` on every clean table to confirm its grain.
+- **Status:** Not started.

@@ -1,0 +1,15 @@
+check_name,table_name,metric,value,note
+category_values,orders,pct_stuck_2016-Q3,25.00,1 of 4 orders
+category_values,orders,pct_stuck_2016-Q4,8.62,28 of 325 orders
+category_values,orders,pct_stuck_2017-Q1,3.29,173 of 5262 orders
+category_values,orders,pct_stuck_2017-Q2,2.55,238 of 9349 orders
+category_values,orders,pct_stuck_2017-Q3,1.82,230 of 12642 orders
+category_values,orders,pct_stuck_2017-Q4,1.74,310 of 17848 orders
+category_values,orders,pct_stuck_2018-Q1,1.66,353 of 21208 orders
+category_values,orders,pct_stuck_2018-Q2,1.26,251 of 19979 orders
+category_values,orders,pct_stuck_2018-Q3,1.19,71 of 5970 orders
+category_values,orders,stuck_approved,2,approved=2 carrier=0 delivered=0 | median age 492 days | past promised date=2
+category_values,orders,stuck_created,5,approved=0 carrier=0 delivered=0 | median age 268 days | past promised date=5
+category_values,orders,stuck_invoiced,289,approved=289 carrier=0 delivered=0 | median age 299 days | past promised date=289
+category_values,orders,stuck_processing,301,approved=301 carrier=0 delivered=0 | median age 345 days | past promised date=301
+category_values,orders,stuck_shipped,1058,approved=1058 carrier=1058 delivered=0 | median age 246 days | past promised date=1058

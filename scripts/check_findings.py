@@ -7,6 +7,8 @@ Checks what can be verified automatically:
   3. Every relative link points to a file that exists
   4. Traceability: every file in the step's sql/ and results/ folders is linked
   5. Status tables explain their icons, and every non-pass row has a treatment
+  6. The check-by-check table has 'Passes if / What we found / What it means / Treatment',
+     and every non-pass row explains what the result means
 
 Judgment criteria (business relevance, scope, stakeholder value, insight) are
 reviewed by a person; see section 3 of docs/findings_standard.md.
@@ -81,6 +83,21 @@ def check(path: Path) -> list[str]:
             treatment = cells[header.index("treatment")]
             if ("⚠️" in status or "❌" in status) and treatment in ("", "—", "-"):
                 errors.append(f"line {i}: non-pass row has no treatment: {cells[0]}")
+    # 6. Check-by-check table is self-explanatory
+    if "cleaning" in path.parts:
+        body = text.split("Check-by-check results", 1)[-1].split("\n## ", 1)[0]
+        table = [l for l in body.splitlines() if l.startswith("|")]
+        if table:
+            cols = [c.strip().lower() for c in table[0].strip().strip("|").split("|")]
+            for required in ("passes if", "what we found", "what it means", "treatment"):
+                if not any(c.startswith(required) for c in cols):
+                    errors.append(f"check-by-check table is missing column '{required}'")
+            if "what it means" in cols:
+                k = cols.index("what it means")
+                for row in table[2:]:
+                    cells = [c.strip() for c in row.strip().strip("|").split("|")]
+                    if len(cells) == len(cols) and ("⚠️" in row or "❌" in row) and len(cells[k].split()) < 12:
+                        errors.append(f"check '{cells[0]}' is not a pass but 'What it means' is too short to explain why")
     return errors
 
 

@@ -27,7 +27,7 @@ When a cleaning finding *raises* a project-level question, it's listed under **H
 
 | Layer | Covers | How |
 |---|---|---|
-| **Automated** | English only; required sections; links resolve; every file in `sql/` and `results/` is linked (traceability); status icons have a legend; every ⚠️ / ❌ row has a treatment | [`scripts/check_findings.py`](../scripts/check_findings.py), run by a git pre-commit hook. A commit that fails is blocked. One-time setup after cloning: `git config core.hooksPath .githooks` |
+| **Automated** | English only; required sections; links resolve; every file in `sql/` and `results/` is linked (traceability); status icons have a legend; every ⚠️ / ❌ row has a treatment; the check-by-check table has the required columns and every non-pass row explains what it means | [`scripts/check_findings.py`](../scripts/check_findings.py), run by a git pre-commit hook. A commit that fails is blocked. One-time setup after cloning: `git config core.hooksPath .githooks` |
 | **Review** | Criteria 1–5 in section 2 that need judgment | Before committing, the author scores every finding against criteria 1–5 using the template below. Any finding that misses a criterion is rewritten, moved to the hand-off list, or cut |
 
 **Review template** (completed before each commit, not stored in the findings file):
@@ -37,6 +37,11 @@ When a cleaning finding *raises* a project-level question, it's listed under **H
 | e.g. 2a Unknown channel | ✅ breaks rule B2 | ✅ data-source issue | ✅ names an owner action | ✅ | ✅ 3 tests rule out alternatives; numbers in `03_…csv` | Keep |
 
 **Plain-language test:** every table must be readable on its own. If a reader can't tell from the row alone what was tested, what was found, and what happens next, rewrite the row.
+
+**Check-by-check table:** this is the most detailed table in a cleaning findings file, not a summary. It has the columns *Check · Passes if… · Result · What we found · What it means · Treatment*. For every ⚠️ / ❌ row:
+- **What we found** gives the specific numbers and which records are affected (e.g. "1,655 orders still `shipped` / `processing`… placed 30+ days ago"), not a label like "stuck orders".
+- **What it means** gives the judgment: the likely cause, and the evidence that rules out other explanations (e.g. "all are past their promised delivery date, so the outcome was never recorded, not slow delivery").
+- Labels like "Minor" or "See 2b" are never enough on their own.
 
 ## 4. Structure of a cleaning `findings.md`
 

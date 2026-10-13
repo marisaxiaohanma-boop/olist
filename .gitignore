@@ -1,0 +1,14 @@
+# 原始数据不上传
+Olist-rawdata/
+data/
+*.zip
+
+# CSV 默认不上传；但每一步 results/ 里的查询结果要留档
+*.csv
+!cleaning/**/results/*.csv
+!p*/**/results/*.csv
+
+# 系统 / 编辑器
+.DS_Store
+.vscode/
+.idea/

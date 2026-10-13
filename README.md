@@ -18,9 +18,10 @@ cleaning/                  数据清洗，每一步一个文件夹
   T3_standardize/          标准化
   T4_build_clean/          生成 clean 表
   R1_reconciliation/       清洗前后对账
-p1_lead_quality/           P1 Lead Quality vs Lead Volume（sql/、results/）
+p1_lead_quality/           P1 Lead Quality vs Lead Volume
 p2_repeat_purchase/        P2 Repeat Purchase & Customer Value
 p3_ga4_funnel/             P3 Website Conversion Funnel
+                           （三个项目文件夹里都有 sql/ 和 results/）
 scripts/                   可重复运行的脚本（例如导入）
 docs/cleaning_log.md       所有清洗决定的总账，和 Sheet 里的 Cleaning Log tab 同步
 ```

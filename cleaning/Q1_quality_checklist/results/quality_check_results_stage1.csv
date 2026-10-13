@@ -1,0 +1,123 @@
+check_name,table_name,metric,value,note
+rows_completion,closed_deals,row_count,842,expected 842
+rows_completion,mql_leads,row_count,8000,expected 8000
+rows_completion,order_items,row_count,112650,expected 112650
+rows_completion,orders,row_count,99441,expected 99441
+rows_completion,sellers,row_count,3095,expected 3095
+data_type,all_stage1,string_date_columns,0,date-like columns stored as STRING
+data_type,closed_deals,average_stock,STRING,
+data_type,closed_deals,business_segment,STRING,
+data_type,closed_deals,business_type,STRING,
+data_type,closed_deals,declared_monthly_revenue,FLOAT64,
+data_type,closed_deals,declared_product_catalog_size,FLOAT64,
+data_type,closed_deals,has_company,BOOL,
+data_type,closed_deals,has_gtin,BOOL,
+data_type,closed_deals,lead_behaviour_profile,STRING,
+data_type,closed_deals,lead_type,STRING,
+data_type,closed_deals,mql_id,STRING,
+data_type,closed_deals,sdr_id,STRING,
+data_type,closed_deals,seller_id,STRING,
+data_type,closed_deals,sr_id,STRING,
+data_type,closed_deals,won_date,TIMESTAMP,
+data_type,mql_leads,first_contact_date,DATE,
+data_type,mql_leads,landing_page_id,STRING,
+data_type,mql_leads,mql_id,STRING,
+data_type,mql_leads,origin,STRING,
+data_type,order_items,freight_value,FLOAT64,
+data_type,order_items,order_id,STRING,
+data_type,order_items,order_item_id,INT64,
+data_type,order_items,price,FLOAT64,
+data_type,order_items,product_id,STRING,
+data_type,order_items,seller_id,STRING,
+data_type,order_items,shipping_limit_date,TIMESTAMP,
+data_type,orders,customer_id,STRING,
+data_type,orders,order_approved_at,TIMESTAMP,
+data_type,orders,order_delivered_carrier_date,TIMESTAMP,
+data_type,orders,order_delivered_customer_date,TIMESTAMP,
+data_type,orders,order_estimated_delivery_date,TIMESTAMP,
+data_type,orders,order_id,STRING,
+data_type,orders,order_purchase_timestamp,TIMESTAMP,
+data_type,orders,order_status,STRING,
+data_type,sellers,seller_city,STRING,
+data_type,sellers,seller_id,STRING,
+data_type,sellers,seller_state,STRING,
+data_type,sellers,seller_zip_code_prefix,STRING,
+distinct_primary_key,closed_deals,dup_mql_id,0,
+distinct_primary_key,mql_leads,dup_mql_id,0,
+distinct_primary_key,order_items,dup_order_item_key,0,key = order_id + order_item_id
+distinct_primary_key,orders,dup_order_id,0,
+distinct_primary_key,sellers,dup_seller_id,0,
+null_check,closed_deals,null_average_stock,776,92.16% of 842 rows
+null_check,closed_deals,null_business_segment,1,0.12% of 842 rows
+null_check,closed_deals,null_business_type,10,1.19% of 842 rows
+null_check,closed_deals,null_declared_monthly_revenue,0,0.00% of 842 rows
+null_check,closed_deals,null_declared_product_catalog_size,773,91.81% of 842 rows
+null_check,closed_deals,null_has_company,779,92.52% of 842 rows
+null_check,closed_deals,null_has_gtin,778,92.40% of 842 rows
+null_check,closed_deals,null_lead_behaviour_profile,177,21.02% of 842 rows
+null_check,closed_deals,null_lead_type,6,0.71% of 842 rows
+null_check,closed_deals,null_mql_id,0,0.00% of 842 rows
+null_check,closed_deals,null_sdr_id,0,0.00% of 842 rows
+null_check,closed_deals,null_seller_id,0,0.00% of 842 rows
+null_check,closed_deals,null_sr_id,0,0.00% of 842 rows
+null_check,closed_deals,null_won_date,0,0.00% of 842 rows
+null_check,mql_leads,null_first_contact_date,0,0.00% of 8000 rows
+null_check,mql_leads,null_landing_page_id,0,0.00% of 8000 rows
+null_check,mql_leads,null_mql_id,0,0.00% of 8000 rows
+null_check,mql_leads,null_origin,60,0.75% of 8000 rows
+null_check,order_items,null_freight_value,0,0.00% of 112650 rows
+null_check,order_items,null_order_id,0,0.00% of 112650 rows
+null_check,order_items,null_order_item_id,0,0.00% of 112650 rows
+null_check,order_items,null_price,0,0.00% of 112650 rows
+null_check,order_items,null_product_id,0,0.00% of 112650 rows
+null_check,order_items,null_seller_id,0,0.00% of 112650 rows
+null_check,order_items,null_shipping_limit_date,0,0.00% of 112650 rows
+null_check,orders,null_customer_id,0,0.00% of 99441 rows
+null_check,orders,null_order_approved_at,160,0.16% of 99441 rows
+null_check,orders,null_order_delivered_carrier_date,1783,1.79% of 99441 rows
+null_check,orders,null_order_delivered_customer_date,2965,2.98% of 99441 rows
+null_check,orders,null_order_estimated_delivery_date,0,0.00% of 99441 rows
+null_check,orders,null_order_id,0,0.00% of 99441 rows
+null_check,orders,null_order_purchase_timestamp,0,0.00% of 99441 rows
+null_check,orders,null_order_status,0,0.00% of 99441 rows
+null_check,sellers,null_seller_city,0,0.00% of 3095 rows
+null_check,sellers,null_seller_id,0,0.00% of 3095 rows
+null_check,sellers,null_seller_state,0,0.00% of 3095 rows
+null_check,sellers,null_seller_zip_code_prefix,0,0.00% of 3095 rows
+date_logic,closed_deals,max_won_date,2018-11-14 18:04:19+00,
+date_logic,closed_deals,min_won_date,2017-12-05 02:00:00+00,should not precede min_first_contact_date
+date_logic,closed_deals,won_before_first_contact,1,joined to mql_leads on mql_id
+date_logic,mql_leads,max_first_contact_date,2018-05-31,expected ~2018-05
+date_logic,mql_leads,min_first_contact_date,2017-06-14,expected ~2017-06
+date_logic,orders,delivered_before_purchase,0,
+date_logic,orders,max_purchase_ts,2018-10-17 17:30:18+00,expected ~2018-10
+date_logic,orders,min_purchase_ts,2016-09-04 21:15:19+00,expected ~2016-09
+value_range,order_items,freight_lt_0,0,
+value_range,order_items,freight_max,409.68,
+value_range,order_items,freight_p99,84.38,
+value_range,order_items,price_le_0,0,
+value_range,order_items,price_max,6735,
+value_range,order_items,price_p50,74.99,
+value_range,order_items,price_p99,890,
+category_values,orders,status_approved,2,min_purchase=2017-02-06
+category_values,orders,status_canceled,625,min_purchase=2016-09-05
+category_values,orders,status_created,5,min_purchase=2017-11-06
+category_values,orders,status_delivered,96478,min_purchase=2016-09-15
+category_values,orders,status_invoiced,314,min_purchase=2016-10-04
+category_values,orders,status_processing,301,min_purchase=2016-10-05
+category_values,orders,status_shipped,1107,min_purchase=2016-09-04
+category_values,orders,status_unavailable,609,min_purchase=2016-10-05
+category_values,orders,stuck_intermediate_before_cutoff_minus_30d,1655,"status in shipped/processing/approved/invoiced/created, purchased >30d before cutoff"
+duplicate_rows,closed_deals,full_row_dups,0,
+duplicate_rows,mql_leads,full_row_dups,0,
+duplicate_rows,order_items,full_row_dups,0,
+duplicate_rows,orders,full_row_dups,0,
+duplicate_rows,sellers,full_row_dups,0,
+referential_integrity,closed_deals,orphan_closed_deals,0,closed_deals rows whose mql_id is not in mql_leads
+referential_integrity,order_items,orphan_order_items,0,order_items rows whose order_id is not in orders
+referential_integrity,order_items,orphan_seller_ids,0,order_items rows whose seller_id is not in sellers
+observation_window,closed_deals,match_rate,0.4513,380 of 842 won sellers have >=1 row in order_items
+observation_window,closed_deals,matched_sellers_with_90d_window,346,full 90d window AND >=1 row in order_items
+observation_window,closed_deals,sellers_with_90d_window,667,won_date <= 2018-06-01 (cutoff - 90d)
+observation_window,closed_deals,won_sellers,842,distinct seller_id in closed_deals
+observation_window,orders,orders_after_cutoff,21,purchase date > 2018-08-30

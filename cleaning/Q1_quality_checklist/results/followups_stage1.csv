@@ -1,0 +1,35 @@
+check_name,table_name,metric,value,note
+category_values,mql_leads,origin_NULL,60,
+category_values,mql_leads,origin_direct_traffic,499,
+category_values,mql_leads,origin_display,118,
+category_values,mql_leads,origin_email,493,
+category_values,mql_leads,origin_organic_search,2296,
+category_values,mql_leads,origin_other,150,
+category_values,mql_leads,origin_other_publicities,65,
+category_values,mql_leads,origin_paid_search,1586,
+category_values,mql_leads,origin_referral,284,
+category_values,mql_leads,origin_social,1350,
+category_values,mql_leads,origin_unknown,1099,
+category_values,orders,stuck_approved,2,purchased >30d before cutoff
+category_values,orders,stuck_created,5,purchased >30d before cutoff
+category_values,orders,stuck_invoiced,289,purchased >30d before cutoff
+category_values,orders,stuck_processing,301,purchased >30d before cutoff
+category_values,orders,stuck_shipped,1058,purchased >30d before cutoff
+date_logic,closed_deals,won_after_order_cutoff,50,won_date > 2018-08-30
+date_logic,closed_deals,won_before_first_contact_b91cf8812365f50ff4bda4bcd6206b05,-2,first_contact=2018-03-08 won=2018-03-06
+null_check,closed_deals,declared_monthly_revenue_eq_0,797,94.66% of 842 rows
+null_check,orders,delivered_but_null_approved_at,14,
+null_check,orders,delivered_but_null_delivered_date,8,
+observation_window,closed_deals,match_rate_won_2017-12,0.3333,1 of 3
+observation_window,closed_deals,match_rate_won_2018-01,0.5616,41 of 73
+observation_window,closed_deals,match_rate_won_2018-02,0.5398,61 of 113
+observation_window,closed_deals,match_rate_won_2018-03,0.5034,74 of 147
+observation_window,closed_deals,match_rate_won_2018-04,0.5024,104 of 207
+observation_window,closed_deals,match_rate_won_2018-05,0.5246,64 of 122
+observation_window,closed_deals,match_rate_won_2018-06,0.4035,23 of 57
+observation_window,closed_deals,match_rate_won_2018-07,0.2703,10 of 37
+observation_window,closed_deals,match_rate_won_2018-08,0.0606,2 of 33
+observation_window,closed_deals,match_rate_won_2018-09,0.0000,0 of 23
+observation_window,closed_deals,match_rate_won_2018-10,0.0000,0 of 21
+observation_window,closed_deals,match_rate_won_2018-11,0.0000,0 of 6
+observation_window,closed_deals,matched_sellers_with_order_before_won,0,won sellers having >=1 order purchased before won_date

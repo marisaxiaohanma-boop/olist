@@ -1,4 +1,4 @@
-# Cleaning Log
+# Data Prep Log
 
 Every data issue found and every handling decision, in order. Data QA rows record issues found and the *recommended* handling; each project's transform step logs what it actually applied. Project-level scoping decisions live in each project folder. `check_name` refers to the [Data QA checklist](../data_prep/2_data_qa/checklist.md). When a check's standard changes, `standard_version` is bumped (v1 → v2) and the reason is recorded.
 

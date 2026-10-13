@@ -125,4 +125,4 @@ This step raises the questions below but doesn't decide them. They're decided in
 | [`sql/03_unknown_origin_diagnosis.sql`](sql/03_unknown_origin_diagnosis.sql): is unknown channel random or systematic? | [`results/unknown_origin_diagnosis.csv`](results/unknown_origin_diagnosis.csv) |
 | [`sql/04_stuck_orders_diagnosis.sql`](sql/04_stuck_orders_diagnosis.sql): are in-progress orders in transit, or was their outcome never recorded? | [`results/stuck_orders_diagnosis.csv`](results/stuck_orders_diagnosis.csv) |
 
-All issues and treatments are logged in [`docs/cleaning_log.md`](../../docs/cleaning_log.md). Written to the [findings standard](../../docs/findings_standard.md).
+All issues and treatments are logged in [`docs/data_prep_log.md`](../../docs/data_prep_log.md). Written to the [findings standard](../../docs/findings_standard.md).

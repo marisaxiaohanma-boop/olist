@@ -5,7 +5,7 @@
 -- Run: bq query --project_id=olist001 --use_legacy_sql=false --format=csv --max_rows=10000 < this_file.sql
 
 WITH params AS (
-  SELECT DATE '2018-08-30' AS order_cutoff  -- order-data cutoff (processing assumption; see docs/cleaning_log.md)
+  SELECT DATE '2018-08-30' AS order_cutoff  -- order-data cutoff (processing assumption; see docs/data_prep_log.md)
 ),
 
 results AS (

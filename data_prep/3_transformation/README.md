@@ -5,7 +5,7 @@ One folder per project. Each starts after that project's scoping and has two kin
 | Prefix | Step | What it does |
 |---|---|---|
 | **T** | Transform | Apply the [Data QA](../2_data_qa/findings.md) treatments relevant to the project, and build its `clean` tables |
-| **R** | Reconcile | `ASSERT` that `clean` equals `raw` minus the records excluded on purpose, with every difference explained in the [cleaning log](../../docs/cleaning_log.md) |
+| **R** | Reconcile | `ASSERT` that `clean` equals `raw` minus the records excluded on purpose, with every difference explained in the [data prep log](../../docs/data_prep_log.md) |
 
 | Folder | Status |
 |---|---|

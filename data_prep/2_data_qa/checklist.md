@@ -1,6 +1,6 @@
 # Quality Checklist — Standard v1 (finalized 2026-10-13)
 
-**Rule:** pass criteria are set *before* running any SQL. Results are judged against the criteria, never the other way around. If a check turns out to be missing or wrong after a run, the standard is bumped to v2 and the reason is logged in [`docs/cleaning_log.md`](../../docs/cleaning_log.md).
+**Rule:** pass criteria are set *before* running any SQL. Results are judged against the criteria, never the other way around. If a check turns out to be missing or wrong after a run, the standard is bumped to v2 and the reason is logged in [`docs/data_prep_log.md`](../../docs/data_prep_log.md).
 
 - **Stage 1** (before P1): `mql_leads`, `closed_deals`, `orders`, `order_items`, `sellers`
 - **Stage 2** (before P2): `customers`, `order_payments`, `order_reviews`, `products`, `product_category_name_translation`

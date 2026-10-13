@@ -42,7 +42,7 @@ p1_lead_quality/           P1 scoping and analysis
 p2_repeat_purchase/        P2 scoping and analysis
 p3_ga4_funnel/             P3 data prep and analysis (GA4 data, not Olist)
 scripts/                   repo tooling (findings checker)
-docs/cleaning_log.md       every data issue found and how it was handled
+docs/data_prep_log.md      every data issue found and how it was handled
 docs/findings_standard.md  how findings are written and reviewed
 ```
 

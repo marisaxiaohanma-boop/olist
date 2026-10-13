@@ -7,5 +7,5 @@
 | **Set up the repository** | This repo: one folder per step, each with `sql/`, `results/`, and `findings.md`, so every number traces back to the query that produced it | ✅ Done |
 
 **Notes**
-- `geolocation` was loaded by mistake at first and dropped on 2026-10-13 (see [cleaning log](../../docs/cleaning_log.md)).
+- `geolocation` was loaded by mistake at first and dropped on 2026-10-13 (see [data prep log](../../docs/data_prep_log.md)).
 - The original load wasn't recorded; the script was written afterwards from the setup spec so the load can be reproduced from a fresh clone. It hasn't been re-run against the existing `raw` tables.

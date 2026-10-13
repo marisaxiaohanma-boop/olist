@@ -3,7 +3,7 @@
 
 Checks what can be verified automatically:
   1. English only (no CJK characters)
-  2. Required sections are present (quality-checklist findings)
+  2. Required sections are present (Data QA findings)
   3. Every relative link points to a file that exists
   4. Traceability: every file in the step's sql/ and results/ folders is linked
   5. Status tables explain their icons, and every non-pass row has a treatment
@@ -38,8 +38,8 @@ def check(path: Path) -> list[str]:
         if CJK.search(line):
             errors.append(f"line {i}: non-English text: {line.strip()[:60]}")
 
-    # 2. Required sections (quality-checklist steps only)
-    is_quality_step = "cleaning" in path.parts and path.parent.name.startswith("Q")
+    # 2. Required sections (Data QA findings only)
+    is_quality_step = path.parent.name == "2_data_qa"
     if is_quality_step:
         headings = [re.sub(r"^[\d.]+\s*", "", l.lstrip("#").strip()) for l in lines if l.startswith("#")]
         for section in CLEANING_SECTIONS:

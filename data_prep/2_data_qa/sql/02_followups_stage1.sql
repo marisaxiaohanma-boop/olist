@@ -1,4 +1,4 @@
--- Q1 follow-up queries · Stage 1
+-- Data QA follow-up queries · Stage 1
 -- Drills into results from 01_quality_checklist.sql that needed a closer look. Read-only.
 -- Same output columns as 01: check_name, table_name, metric, value, note
 

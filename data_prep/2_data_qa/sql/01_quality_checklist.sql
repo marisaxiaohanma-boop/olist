@@ -1,7 +1,7 @@
--- Q1 Quality Checklist · Stage 1 · Standard v1
+-- Data QA checklist · Stage 1 · Standard v1
 -- Scope: mql_leads, closed_deals, orders, order_items, sellers (olist001.raw)
 -- Read-only. Every block outputs the same 5 columns: check_name, table_name, metric, value, note
--- Pass criteria: cleaning/Q1_quality_checklist/checklist.md
+-- Pass criteria: data_prep/2_data_qa/checklist.md
 -- Run: bq query --project_id=olist001 --use_legacy_sql=false --format=csv --max_rows=10000 < this_file.sql
 
 WITH params AS (

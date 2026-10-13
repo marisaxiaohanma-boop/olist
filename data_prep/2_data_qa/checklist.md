@@ -7,7 +7,7 @@
 
 ## Start from the business model
 
-The goal of Q1 is to confirm that the raw data is a faithful record of how Olist works. So the checks are derived from the business, not from generic data-quality rules.
+The goal of Data QA is to confirm that the raw data is a faithful record of how Olist works. So the checks are derived from the business, not from generic data-quality rules.
 
 **How Olist works (stage 1 scope):** marketing generates a lead (MQL) through an acquisition channel → a sales rep closes the deal and the seller signs up → the seller lists products → customers place orders, which move through approval, shipping, and delivery. Olist earns a commission on item prices (GMV).
 
@@ -29,7 +29,7 @@ This is a loop, not a one-way pass: the rules shape the checks, and the results 
 
 | # | check_name | What it checks | Pass criteria (v1) | If it fails | Tables | Stage |
 |---|---|---|---|---|---|---|
-| 1 | rows_completion | Every table loaded completely | Row counts equal the published Kaggle counts (see below) | Check for an interrupted load; re-run S1 | all 10 | 1, 2 |
+| 1 | rows_completion | Every table loaded completely | Row counts equal the published Kaggle counts (see below) | Check for an interrupted load; re-run the setup load | all 10 | 1, 2 |
 | 2 | data_type | Dates, amounts, and IDs have the right types | Dates are DATE / TIMESTAMP; `price`, `freight_value`, `payment_value` are FLOAT64 / NUMERIC; IDs are STRING. Any date stored as STRING must cast with 0 failures | Note the columns for each project's transform; inspect raw values that fail to cast | all | 1, 2 |
 | 3 | distinct_primary_key | Each table's grain is what we think it is | Row count = distinct key count for `orders`, `sellers`, `mql_leads`, `closed_deals`, `customers`, `products`, `order_reviews`. Multiple rows per order in `order_items` / `order_payments` is expected | Check whether duplicates are exact copies or different content; one-to-many grain is handled in each project's transform | 7 tables listed | 1, 2 |
 | 4 | null_check | Missing values in each column | No single threshold; judged column by column (see below) | Accept, exclude, or investigate per column | all | 1, 2 |

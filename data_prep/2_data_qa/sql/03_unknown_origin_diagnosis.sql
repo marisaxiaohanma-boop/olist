@@ -1,4 +1,4 @@
--- Q1 diagnosis: why is lead origin missing for 14.5% of MQLs?
+-- Data QA diagnosis: why is lead origin missing for 14.5% of MQLs?
 -- Question: is "unknown" origin random noise, a one-time tracking outage, or a systematic gap?
 -- Read-only. Output: check_name, table_name, metric, value, note
 

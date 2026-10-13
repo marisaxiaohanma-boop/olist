@@ -1,4 +1,4 @@
--- Q1 diagnosis: why are 1,655 orders still "in progress" months after purchase?
+-- Data QA diagnosis: why are 1,655 orders still "in progress" months after purchase?
 -- Question: are these orders genuinely in transit, or did their final outcome never get written back?
 -- Scope: in-progress orders purchased more than 30 days before the order-data cutoff (2018-08-30). Read-only.
 -- Output: check_name, table_name, metric, value, note

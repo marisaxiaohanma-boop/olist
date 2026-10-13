@@ -1,4 +1,4 @@
-# Q1 · Quality Checklist
+# 2 · Data QA
 
 - **Purpose:** before changing any data, check the raw tables against a standard written in advance. The findings tell each project what its transform step needs to handle.
 - **Standard:** [checklist.md](checklist.md) (v1)

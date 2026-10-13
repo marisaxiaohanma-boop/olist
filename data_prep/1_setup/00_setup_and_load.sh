@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# S1 Setup: load both Olist Kaggle datasets into olist001.raw. Safe to re-run (--replace overwrites tables).
-# Written from the S1 spec after the original load; the original load was not recorded.
-# Usage: bash scripts/00_setup_and_load.sh [data_dir, default: data]
+# Setup: load both Olist Kaggle datasets into olist001.raw. Safe to re-run (--replace overwrites tables).
+# Written from the setup spec after the original load; the original load was not recorded.
+# Usage: bash data_prep/1_setup/00_setup_and_load.sh [data_dir, default: data]
 set -euo pipefail
 
 PROJECT=olist001

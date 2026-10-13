@@ -14,49 +14,39 @@ A growth diagnosis of a Brazilian e-commerce marketplace (Olist), built on publi
 - **Layers:** `raw` (source tables, never modified) → `clean` (transformed per project) → `analysis` (project outputs)
 - **Sources:** [Olist Marketing Funnel](https://www.kaggle.com/olistbr/marketing-funnel-olist) and [Brazilian E-Commerce Public Dataset](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce) (Kaggle)
 
-## How the data is cleaned
+## Data prep
 
-Cleaning happens in two layers. Folders are named **phase letter + step number + short name** (e.g. `Q1_quality_checklist` = Quality checklist, step 1).
+Before any analysis, the data goes through three steps in [`data_prep/`](data_prep):
 
-**1. Shared: set up and validate.** Done once, for all projects, and doesn't change any data.
+| Step | Question it answers | Changes data? | Scope |
+|---|---|---|---|
+| [**1 · Setup**](data_prep/1_setup) | Is the raw data loaded, and is the environment ready? | Loads `raw` only | Shared |
+| [**2 · Data QA**](data_prep/2_data_qa) | Is the raw data a faithful record of how the business works: does it follow the business model, is critical data missing, do the tables join? | No | Shared |
+| [**3 · Transformation**](data_prep/3_transformation) | Given what a project needs, how do we fix the issues Data QA found and build its `clean` tables, and did we lose anything? | Yes, writes `clean` | Per project (after scoping) |
 
-| Prefix | Phase | Question it answers |
-|---|---|---|
-| **S** | **Setup** | Is the raw data loaded and the environment ready? |
-| **Q** | **Quality checklist** | Is the raw data a faithful record of how the business works: does it follow the business model, is critical data missing, do the tables join? |
+Transformation is per project because what counts as "clean" depends on the business question. For example, which order statuses count as revenue is a P1 decision, not a data-quality fact.
 
-| Folder | What it does |
-|---|---|
-| [`S1_setup_load`](cleaning/S1_setup_load) | Load the Kaggle CSVs into BigQuery `raw` |
-| [`S2_env_check`](cleaning/S2_env_check) | Verify billing, region (US), and that raw tables won't expire |
-| [`S3_repo_setup`](cleaning/S3_repo_setup) | Set up this repository |
-| [`Q1_quality_checklist`](cleaning/Q1_quality_checklist) | Check raw data against a standard written in advance. **Start here:** [findings](cleaning/Q1_quality_checklist/findings.md) |
-
-**2. Per project: transform and reconcile.** Done after each project's scoping, because what counts as "clean" depends on the business question (e.g. which order statuses count as revenue is a P1 decision).
-
-| Prefix | Phase | Question it answers |
-|---|---|---|
-| **T** | **Transform** | Given what this project needs, how do we fix the issues Q found and build its `clean` tables? |
-| **R** | **Reconciliation** | Did the transform drop or duplicate anything by mistake? Every difference must be explained in the [cleaning log](docs/cleaning_log.md) |
-
-| Folder | Project |
-|---|---|
-| [`cleaning/p1_lead_quality`](cleaning/p1_lead_quality) | P1 |
-| [`cleaning/p2_repeat_purchase`](cleaning/p2_repeat_purchase) | P2 (P2's tables are first added to Q1 as stage 2) |
+**Start here:** [Data QA findings](data_prep/2_data_qa/findings.md)
 
 ## Repository layout
 
 ```
-cleaning/                  shared setup + validation, then per-project transform (see above)
+data_prep/
+  1_setup/                 load raw data, check environment
+  2_data_qa/               data quality checks (shared, read-only)
+  3_transformation/        per-project transform + reconciliation
+    p1_lead_quality/
+    p2_repeat_purchase/
+    p3_ga4_funnel/
 p1_lead_quality/           P1 scoping and analysis
 p2_repeat_purchase/        P2 scoping and analysis
 p3_ga4_funnel/             P3 data prep and analysis (GA4 data, not Olist)
-scripts/                   reproducible load scripts
+scripts/                   repo tooling (findings checker)
 docs/cleaning_log.md       every data issue found and how it was handled
 docs/findings_standard.md  how findings are written and reviewed
 ```
 
-Each step and project folder follows the same structure, so every number can be traced back to the query that produced it:
+Each data-prep step and project follows the same structure, so every number can be traced back to the query that produced it:
 
 | File | Contents |
 |---|---|
@@ -65,13 +55,13 @@ Each step and project folder follows the same structure, so every number can be 
 | `results/` | Query output (CSV) |
 | `findings.md` | What the results mean and what was decided |
 
-Raw CSVs are not committed. `scripts/00_setup_and_load.sh` downloads them from Kaggle and loads them into BigQuery.
+Raw CSVs are not committed. [`data_prep/1_setup/00_setup_and_load.sh`](data_prep/1_setup/00_setup_and_load.sh) downloads them from Kaggle and loads them into BigQuery.
 
 ## Status
 
 | Step | Status |
 |---|---|
-| S1–S3 Setup | ✅ Done |
-| Q1 Quality Checklist (stage 1: P1's tables) | ✅ Done. See [findings](cleaning/Q1_quality_checklist/findings.md) |
-| P1 scoping → P1 transform & reconciliation → P1 analysis | Not started |
-| Q1 stage 2 (P2's tables) → P2 | Not started |
+| 1 · Setup | ✅ Done |
+| 2 · Data QA, stage 1 (P1's tables) | ✅ Done. See [findings](data_prep/2_data_qa/findings.md) |
+| P1 scoping → P1 transformation → P1 analysis | Not started |
+| Data QA stage 2 (P2's tables) → P2 | Not started |

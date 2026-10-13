@@ -1,4 +1,4 @@
-# Q1 Data Quality Findings — Stage 1
+# Data QA Findings — Stage 1
 
 **Scope:** the five raw tables behind the lead-to-revenue funnel: `mql_leads`, `closed_deals`, `sellers`, `orders`, `order_items`
 **Question:** is the raw data a faithful record of how Olist's business works? No data was changed in this step.
@@ -92,7 +92,7 @@ What *is* incomplete is optional seller-profile data from the sales intake form.
 
 ✅ meets the standard · ⚠️ no pass/fail threshold was set in advance, so the result needs interpretation · ❌ breaks the standard
 
-Q1 doesn't change any data. **Treatment** is the recommended handling; each project applies the treatments relevant to its scope in its own transform step ([`cleaning/p1_lead_quality`](../p1_lead_quality), [`cleaning/p2_repeat_purchase`](../p2_repeat_purchase)).
+Data QA doesn't change any data. **Treatment** is the recommended handling; each project applies the treatments relevant to its scope in its own transform step ([`3_transformation/`](../3_transformation)).
 
 | Check | Passes if… | Result | What we found | What it means | Treatment |
 |---|---|---|---|---|---|

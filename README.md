@@ -18,7 +18,7 @@ cleaning/                  数据清洗，每一步一个文件夹
   T3_standardize/          标准化
   T4_build_clean/          生成 clean 表
   R1_reconciliation/       清洗前后对账
-p1_lead_quality/           P1 Lead Quality vs Lead Volume
+p1_lead_quality/           P1 Lead Quality vs Lead Volume（sql/、results/）
 p2_repeat_purchase/        P2 Repeat Purchase & Customer Value
 p3_ga4_funnel/             P3 Website Conversion Funnel
 scripts/                   可重复运行的脚本（例如导入）

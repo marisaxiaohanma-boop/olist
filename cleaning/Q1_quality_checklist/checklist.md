@@ -30,8 +30,8 @@ This is a loop, not a one-way pass: the rules shape the checks, and the results 
 | # | check_name | What it checks | Pass criteria (v1) | If it fails | Tables | Stage |
 |---|---|---|---|---|---|---|
 | 1 | rows_completion | Every table loaded completely | Row counts equal the published Kaggle counts (see below) | Check for an interrupted load; re-run S1 | all 10 | 1, 2 |
-| 2 | data_type | Dates, amounts, and IDs have the right types | Dates are DATE / TIMESTAMP; `price`, `freight_value`, `payment_value` are FLOAT64 / NUMERIC; IDs are STRING. Any date stored as STRING must cast with 0 failures | Note the columns; convert in T1; inspect raw values that fail to cast | all | 1, 2 |
-| 3 | distinct_primary_key | Each table's grain is what we think it is | Row count = distinct key count for `orders`, `sellers`, `mql_leads`, `closed_deals`, `customers`, `products`, `order_reviews`. Multiple rows per order in `order_items` / `order_payments` is expected | Check whether duplicates are exact copies or different content; handle one-to-many in T2 | 7 tables listed | 1, 2 |
+| 2 | data_type | Dates, amounts, and IDs have the right types | Dates are DATE / TIMESTAMP; `price`, `freight_value`, `payment_value` are FLOAT64 / NUMERIC; IDs are STRING. Any date stored as STRING must cast with 0 failures | Note the columns for each project's transform; inspect raw values that fail to cast | all | 1, 2 |
+| 3 | distinct_primary_key | Each table's grain is what we think it is | Row count = distinct key count for `orders`, `sellers`, `mql_leads`, `closed_deals`, `customers`, `products`, `order_reviews`. Multiple rows per order in `order_items` / `order_payments` is expected | Check whether duplicates are exact copies or different content; one-to-many grain is handled in each project's transform | 7 tables listed | 1, 2 |
 | 4 | null_check | Missing values in each column | No single threshold; judged column by column (see below) | Accept, exclude, or investigate per column | all | 1, 2 |
 | 5 | date_logic | Events happen in a sensible order | Delivery ≥ purchase; `won_date` ≥ `first_contact_date`; date ranges match the dataset docs | Few rows: exclude and log. Many rows: stop and investigate | `orders`, `closed_deals`, `mql_leads` | 1, 2 |
 | 6 | value_range | Amounts and scores are plausible | `price` > 0; `freight_value` ≥ 0; `review_score` in 1–5; extremes are rare and explainable | Inspect samples; exclude, keep, or flag | `order_items`, `order_payments`, `order_reviews` | 1, 2 |
@@ -69,4 +69,4 @@ This is a **processing assumption, not a fact in the data**. Daily orders drop t
 
 ## Known in advance (stage 2)
 
-`order_reviews.review_id` is known to have a few hundred duplicates in this dataset (the same review is attached to multiple orders), so `distinct_primary_key` is expected to fail there. T2 already plans to keep only the latest review per order.
+`order_reviews.review_id` is known to have a few hundred duplicates in this dataset (the same review is attached to multiple orders), so `distinct_primary_key` is expected to fail there. P2's transform plans to keep only the latest review per order.

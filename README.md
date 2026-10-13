@@ -11,19 +11,19 @@ A growth diagnosis of a Brazilian e-commerce marketplace (Olist), built on publi
 ## Data pipeline
 
 - **Warehouse:** BigQuery project `olist001`, US region
-- **Layers:** `raw` (source tables, never modified) → `clean` (validated and transformed) → `analysis` (project outputs)
+- **Layers:** `raw` (source tables, never modified) → `clean` (transformed per project) → `analysis` (project outputs)
 - **Sources:** [Olist Marketing Funnel](https://www.kaggle.com/olistbr/marketing-funnel-olist) and [Brazilian E-Commerce Public Dataset](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce) (Kaggle)
 
 ## How the data is cleaned
 
-Before any analysis, the data goes through four phases. Each cleaning folder is named **phase letter + step number + short name**, so `T2_grain` is the second Transform step.
+Cleaning happens in two layers. Folders are named **phase letter + step number + short name** (e.g. `Q1_quality_checklist` = Quality checklist, step 1).
 
-| Prefix | Phase | Question it answers | Changes data? |
-|---|---|---|---|
-| **S** | **Setup** | Is the raw data loaded and the environment ready? | Loads `raw` only |
-| **Q** | **Quality checklist** | Is the raw data a faithful record of how the business works: does it follow the business model, is critical data missing, do tables join? | No (read-only) |
-| **T** | **Transform** | How do we fix what Q found, so analysis can trust the data? | Yes, writes `clean` |
-| **R** | **Reconciliation** | Did cleaning drop or duplicate anything by mistake? | No (verifies `clean` against `raw`) |
+**1. Shared: set up and validate.** Done once, for all projects, and doesn't change any data.
+
+| Prefix | Phase | Question it answers |
+|---|---|---|
+| **S** | **Setup** | Is the raw data loaded and the environment ready? |
+| **Q** | **Quality checklist** | Is the raw data a faithful record of how the business works: does it follow the business model, is critical data missing, do the tables join? |
 
 | Folder | What it does |
 |---|---|
@@ -31,21 +31,26 @@ Before any analysis, the data goes through four phases. Each cleaning folder is 
 | [`S2_env_check`](cleaning/S2_env_check) | Verify billing, region (US), and that raw tables won't expire |
 | [`S3_repo_setup`](cleaning/S3_repo_setup) | Set up this repository |
 | [`Q1_quality_checklist`](cleaning/Q1_quality_checklist) | Check raw data against a standard written in advance. **Start here:** [findings](cleaning/Q1_quality_checklist/findings.md) |
-| [`T1_type_cast`](cleaning/T1_type_cast) | Make dates and amounts usable for calculations |
-| [`T2_grain`](cleaning/T2_grain) | Roll one-to-many tables (e.g. several items per order) up to one row per order, so joins don't double-count revenue |
-| [`T3_standardize`](cleaning/T3_standardize) | Make category values consistent (e.g. map missing channel and `unknown` to one group) |
-| [`T4_build_clean`](cleaning/T4_build_clean) | Build the clean tables that analysis reads from |
-| [`R1_reconciliation`](cleaning/R1_reconciliation) | Prove that every row and every R$ of GMV dropped between raw and clean is explained in the [cleaning log](docs/cleaning_log.md) |
 
-Cleaning runs in two stages: stage 1 covers the five tables P1 needs, and stage 2 adds the tables for P2 before P2 starts.
+**2. Per project: transform and reconcile.** Done after each project's scoping, because what counts as "clean" depends on the business question (e.g. which order statuses count as revenue is a P1 decision).
+
+| Prefix | Phase | Question it answers |
+|---|---|---|
+| **T** | **Transform** | Given what this project needs, how do we fix the issues Q found and build its `clean` tables? |
+| **R** | **Reconciliation** | Did the transform drop or duplicate anything by mistake? Every difference must be explained in the [cleaning log](docs/cleaning_log.md) |
+
+| Folder | Project |
+|---|---|
+| [`cleaning/p1_lead_quality`](cleaning/p1_lead_quality) | P1 |
+| [`cleaning/p2_repeat_purchase`](cleaning/p2_repeat_purchase) | P2 (P2's tables are first added to Q1 as stage 2) |
 
 ## Repository layout
 
 ```
-cleaning/                  data cleaning, one folder per step (see above)
-p1_lead_quality/           P1 analysis
-p2_repeat_purchase/        P2 analysis
-p3_ga4_funnel/             P3 analysis
+cleaning/                  shared setup + validation, then per-project transform (see above)
+p1_lead_quality/           P1 scoping and analysis
+p2_repeat_purchase/        P2 scoping and analysis
+p3_ga4_funnel/             P3 data prep and analysis (GA4 data, not Olist)
 scripts/                   reproducible load scripts
 docs/cleaning_log.md       every data issue found and how it was handled
 docs/findings_standard.md  how findings are written and reviewed
@@ -67,6 +72,6 @@ Raw CSVs are not committed. `scripts/00_setup_and_load.sh` downloads them from K
 | Step | Status |
 |---|---|
 | S1–S3 Setup | ✅ Done |
-| Q1 Quality Checklist (stage 1) | ✅ Done. See [findings](cleaning/Q1_quality_checklist/findings.md) |
-| T1–T4, R1 (stage 1) | Not started |
-| P1 | Not started |
+| Q1 Quality Checklist (stage 1: P1's tables) | ✅ Done. See [findings](cleaning/Q1_quality_checklist/findings.md) |
+| P1 scoping → P1 transform & reconciliation → P1 analysis | Not started |
+| Q1 stage 2 (P2's tables) → P2 | Not started |

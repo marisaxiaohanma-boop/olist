@@ -8,8 +8,9 @@ Each step answers a different question. A finding goes in the layer whose questi
 
 | Layer | Question it answers | Belongs here | Does **not** belong here |
 |---|---|---|---|
-| **Data cleaning** (`cleaning/`) | Is the raw data a faithful, complete, consistent record of how the business works? | Records that break business rules; missing or untracked data; broken joins; load errors; how each issue is fixed in Transform | Which fields or rows a project should use; metric definitions; what an issue means for a project's conclusions |
-| **Project** (`p1_…`, `p2_…`, `p3_…`) | What does the data say about the business question, and what should we do? | Scoping (which data, which metric definitions); analysis; recommendations | Re-checking data quality that was already validated |
+| **Shared validation** (`cleaning/S*`, `cleaning/Q*`) | Is the raw data a faithful, complete, consistent record of how the business works? | Records that break business rules; missing or untracked data; broken joins; load errors; *recommended* handling for each issue | Which fields or rows a project should use; metric definitions; what an issue means for a project's conclusions |
+| **Project transform** (`cleaning/p1_…`, `cleaning/p2_…`) | Given this project's scope, how is the data fixed and reshaped, and did anything get lost? | Which Q1 treatments were applied; clean-table design; reconciliation results | Re-deciding scope, or new data-quality checks (those go back to Q1) |
+| **Project analysis** (`p1_…`, `p2_…`, `p3_…`) | What does the data say about the business question, and what should we do? | Scoping (which data, which metric definitions); analysis; recommendations | Re-checking data quality that was already validated |
 
 When a cleaning finding *raises* a project-level question, it's listed under **Hand-off to project scoping** at the end of the cleaning findings, and decided in the project.
 
@@ -43,7 +44,7 @@ When a cleaning finding *raises* a project-level question, it's listed under **H
 - **What it means** gives the judgment: the likely cause, and the evidence that rules out other explanations (e.g. "all are past their promised delivery date, so the outcome was never recorded, not slow delivery").
 - Labels like "Minor" or "See 2b" are never enough on their own.
 
-## 4. Structure of a cleaning `findings.md`
+## 4. Structure of a quality-checklist (`Q*`) `findings.md`
 
 1. **Summary**: one row per core question, each with a direct answer
 2. **Business model fit**: does the data follow the business's rules?

@@ -3,7 +3,7 @@
 
 Checks what can be verified automatically:
   1. English only (no CJK characters)
-  2. Required sections are present (cleaning findings)
+  2. Required sections are present (quality-checklist findings)
   3. Every relative link points to a file that exists
   4. Traceability: every file in the step's sql/ and results/ folders is linked
   5. Status tables explain their icons, and every non-pass row has a treatment
@@ -38,8 +38,9 @@ def check(path: Path) -> list[str]:
         if CJK.search(line):
             errors.append(f"line {i}: non-English text: {line.strip()[:60]}")
 
-    # 2. Required sections (cleaning steps only)
-    if "cleaning" in path.parts:
+    # 2. Required sections (quality-checklist steps only)
+    is_quality_step = "cleaning" in path.parts and path.parent.name.startswith("Q")
+    if is_quality_step:
         headings = [re.sub(r"^[\d.]+\s*", "", l.lstrip("#").strip()) for l in lines if l.startswith("#")]
         for section in CLEANING_SECTIONS:
             if not any(h.startswith(section) for h in headings):
@@ -84,7 +85,7 @@ def check(path: Path) -> list[str]:
             if ("⚠️" in status or "❌" in status) and treatment in ("", "—", "-"):
                 errors.append(f"line {i}: non-pass row has no treatment: {cells[0]}")
     # 6. Check-by-check table is self-explanatory
-    if "cleaning" in path.parts:
+    if is_quality_step:
         body = text.split("Check-by-check results", 1)[-1].split("\n## ", 1)[0]
         table = [l for l in body.splitlines() if l.startswith("|")]
         if table:

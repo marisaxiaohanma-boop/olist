@@ -26,7 +26,7 @@
 | B5 · Orders follow a fixed lifecycle | ⚠️ | 0 orders delivered before purchase; only the 8 known statuses; 97% `delivered`. But 1.7% of orders never reach a final status (see 2c) |
 | B6 · GMV is positive item prices | ✅ | 0 non-positive prices; max R$6,735 vs. 99th percentile R$890 |
 
-**Exception:** 1 deal is marked won 2 days before the lead's first contact. That's impossible, so it's most likely a data-entry error. It will be excluded in Transform.
+**Exception:** 1 deal is marked won 2 days before the lead's first contact. That's impossible, so it's most likely a data-entry error. Recommended: exclude it in any project that uses deal dates.
 
 ## 2. Critical missing data
 
@@ -43,7 +43,7 @@
 That same page is one of Olist's two largest sources of closed deals: 171 of 842 (20%), with an 18.8% close rate vs. 10.5% overall. **One of the best-performing entry points is the one whose channel isn't recorded.**
 
 - **Action for the data owner:** audit source / UTM tagging on page `b76ef374…`, which accounts for over half the gap. Then make `origin` required at lead capture, with no default to `unknown`.
-- **Treatment here:** merge `NULL` and `unknown` into one `unknown` value in T3. Keep these leads; don't drop them.
+- **Recommended handling:** merge `NULL` and `unknown` into one `unknown` group, and keep these leads rather than dropping them.
 
 ### 2b. 55% of signed sellers never appear in the order data (rule B3)
 
@@ -52,7 +52,7 @@ Only 380 of 842 signed sellers (45%) have any order. Late sign-ups explain part 
 The data can't tell apart two explanations: (1) about half of signed sellers never start selling, or (2) the public order dataset doesn't cover every order.
 
 - **Action for the data owner:** confirm whether the order data is complete for these sellers.
-- **Treatment here:** none. The records are valid. How to interpret them is handed off to P1 (see below).
+- **Recommended handling:** none. The records are valid. How to interpret them is handed off to P1 (see below).
 
 ### 2c. 1,655 orders never had their final outcome recorded (rule B5)
 
@@ -68,7 +68,7 @@ Every order should end as `delivered`, `canceled`, or `unavailable`. But 1,655 o
 **Conclusion:** these orders were most likely delivered, lost, or canceled, but the outcome was never written back to `order_status`. The status field stops updating for a small, persistent share of orders, especially after carrier handoff.
 
 - **Action for the data owner:** reconcile these orders with carrier and payment records, and add a rule that closes any order still open after its promised delivery date (e.g. flag as `lost` or `unresolved`).
-- **Treatment here:** keep the records, but don't count them as completed sales.
+- **Recommended handling:** keep the records, but don't count them as completed sales.
 
 ### 2d. Every field the funnel depends on is complete
 
@@ -92,13 +92,15 @@ What *is* incomplete is optional seller-profile data from the sales intake form.
 
 ✅ meets the standard · ⚠️ no pass/fail threshold was set in advance, so the result needs interpretation · ❌ breaks the standard
 
+Q1 doesn't change any data. **Treatment** is the recommended handling; each project applies the treatments relevant to its scope in its own transform step ([`cleaning/p1_lead_quality`](../p1_lead_quality), [`cleaning/p2_repeat_purchase`](../p2_repeat_purchase)).
+
 | Check | Passes if… | Result | What we found | What it means | Treatment |
 |---|---|---|---|---|---|
 | rows_completion | Every table has exactly the published row count | ✅ | `mql_leads` 8,000 · `closed_deals` 842 · `sellers` 3,095 · `orders` 99,441 · `order_items` 112,650, all exact | The load was complete; nothing was cut off or appended twice | — |
-| data_type | Dates are DATE / TIMESTAMP, amounts are numeric, IDs are text | ✅ | All 37 columns have the expected type; 0 dates stored as text | Dates and amounts can be used directly | Transform only needs to align TIMESTAMP and DATE before comparing them |
+| data_type | Dates are DATE / TIMESTAMP, amounts are numeric, IDs are text | ✅ | All 37 columns have the expected type; 0 dates stored as text | Dates and amounts can be used directly | No conversion needed; align TIMESTAMP and DATE before comparing them |
 | distinct_primary_key | Each lead, deal, seller, order, and order item appears once | ✅ | 0 duplicate keys in all 5 tables | One row = one real-world record, so counts and sums won't be inflated | — |
 | null_check | Judged column by column (no single threshold) | ⚠️ | Funnel fields (IDs, dates, prices): 0 missing. Acquisition channel: 1,159 leads (14.5%) missing. Seller-profile fields: ~92% empty, plus `declared_monthly_revenue` 94.7% `0` | The funnel is fully traceable, except that channel attribution has a systematic tracking gap on one landing page (2a). Profile fields are optional and rarely filled in (2d) | Keep leads with no channel as one `unknown` group. Profile fields: flagged, decided in P1 scoping |
-| date_logic | A deal can't close before the lead's first contact; an order can't be delivered before it's placed | ❌ | 1 of 842 deals is marked won 2 days before first contact. 0 orders delivered before purchase | An impossible sequence, most likely a data-entry error on one record. Not a pattern | Exclude that one deal in Transform |
+| date_logic | A deal can't close before the lead's first contact; an order can't be delivered before it's placed | ❌ | 1 of 842 deals is marked won 2 days before first contact. 0 orders delivered before purchase | An impossible sequence, most likely a data-entry error on one record. Not a pattern | Exclude that one deal |
 | value_range | Prices > 0, freight ≥ 0, extremes are explainable | ✅ | 0 zero or negative prices or freight. Median price R$75, 99th percentile R$890, max R$6,735 | High prices are rare and plausible for a general marketplace (e.g. electronics, furniture) | Keep all values |
 | category_values | Order status is a known value, and orders still in progress are recent | ❌ | Statuses are all valid, but 1,655 orders (1.7%) placed 30+ days before the cutoff are still `shipped`, `processing`, `invoiced`, `created`, or `approved`. All are past their promised delivery date; median age 8–16 months | These orders didn't get stuck in transit; their final outcome (delivered, lost, or canceled) was never recorded. A status-tracking gap, not slow delivery (2c) | Keep the records, but don't count them as completed sales |
 | duplicate_rows | No row appears twice | ✅ | 0 fully duplicated rows in all 5 tables | No double-counting from repeated loads | — |

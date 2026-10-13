@@ -28,7 +28,7 @@ SELECT 'data_type', table_name, column_name, data_type, ''
 FROM `olist001.raw.INFORMATION_SCHEMA.COLUMNS`
 WHERE table_name IN ('mql_leads', 'closed_deals', 'orders', 'order_items', 'sellers')
 
--- Date-like columns still stored as STRING (these would need cast-failure counts in T1)
+-- Date-like columns still stored as STRING (these would need cast-failure counts in a transform step)
 UNION ALL
 SELECT 'data_type', 'all_stage1', 'string_date_columns', CAST(COUNT(*) AS STRING),
        'date-like columns stored as STRING'

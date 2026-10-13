@@ -1,12 +1,12 @@
 # Data cleaning
 
-Folders are named **phase letter + step number + short name** (e.g. `T2_grain` = Transform, step 2).
+Cleaning happens in two layers:
 
-| Prefix | Phase | What it does |
-|---|---|---|
-| **S** | Setup | Load raw data and prepare the environment |
-| **Q** | Quality checklist | Check that raw data reflects the business model, with no data changed |
-| **T** | Transform | Fix what Q found and build the `clean` tables |
-| **R** | Reconciliation | Verify that clean data matches raw, with every difference explained |
+| Layer | Folders | Question | Changes data? |
+|---|---|---|---|
+| **Shared: set up and validate** (once, for all projects) | `S1`–`S3`, `Q1` | Is the raw data loaded, and is it a faithful record of how the business works? | No (loads `raw` only) |
+| **Per project: transform and reconcile** (after that project's scoping) | `p1_lead_quality/`, `p2_repeat_purchase/` | Given what this project needs, how do we fix the issues Q1 found, and did we lose anything? | Yes, writes `clean` |
 
-Each step folder contains `README.md` (method and rules), `sql/` (queries), `results/` (outputs), and `findings.md` (what the results mean). Full step list: [project README](../README.md#how-the-data-is-cleaned).
+Transform is per project because what counts as "clean" depends on the question. For example, which order statuses count as revenue is a P1 decision, not a data-quality fact.
+
+Folders are named **phase letter + step number + short name**: **S** = Setup, **Q** = Quality checklist, **T** = Transform, **R** = Reconciliation. Each step folder contains `README.md`, `sql/`, `results/`, and `findings.md`.
